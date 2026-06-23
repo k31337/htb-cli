@@ -1,3 +1,5 @@
+import base64
+import json
 import os
 
 import httpx
@@ -16,6 +18,15 @@ class HTBClient:
             raise HTBAPIError(
                 "HTB token not found. Set the HTB_TOKEN environment variable."
             )
+
+    def _own_user_id(self) -> str:
+        try:
+            payload_segment = self.token.split(".")[1]
+            padding = "=" * (-len(payload_segment) % 4)
+            payload = json.loads(base64.urlsafe_b64decode(payload_segment + padding))
+            return str(payload["sub"])
+        except (IndexError, ValueError, KeyError):
+            raise HTBAPIError("Could not read user ID from the token.")
 
     def _headers(self) -> dict:
         return {
@@ -38,3 +49,8 @@ class HTBClient:
     def machine_profile(self, id_or_name: str) -> dict:
         data = self.get(f"/machine/profile/{id_or_name}")
         return data.get("info", data) if isinstance(data, dict) else data
+
+    def own_profile(self) -> dict:
+        user_id = self._own_user_id()
+        data = self.get(f"/user/profile/basic/{user_id}")
+        return data.get("profile", data) if isinstance(data, dict) else data

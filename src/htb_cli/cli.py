@@ -84,5 +84,42 @@ def machine(id_or_name: str) -> None:
     console.print(table)
 
 
+@app.command()
+def profile() -> None:
+    """Show your own HTB profile."""
+    try:
+        client = HTBClient()
+        info = client.own_profile()
+    except HTBAPIError as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(code=1)
+    except httpx.HTTPStatusError as exc:
+        console.print(f"[red]HTTP error:[/red] {exc}")
+        raise typer.Exit(code=1)
+
+    table = Table(title=str(info.get("name", "Profile")), show_header=False)
+    table.add_column("Field", style="bold")
+    table.add_column("Value")
+
+    fields = [
+        ("ID", "id"),
+        ("Rank", "rank"),
+        ("Ranking", "ranking"),
+        ("Points", "points"),
+        ("User owns", "user_owns"),
+        ("System owns", "system_owns"),
+        ("User bloods", "user_bloods"),
+        ("System bloods", "system_bloods"),
+        ("Team", "team"),
+        ("Country", "country_name"),
+        ("University", "university_name"),
+    ]
+    for label, key in fields:
+        if key in info:
+            table.add_row(label, str(info.get(key, "")))
+
+    console.print(table)
+
+
 if __name__ == "__main__":
     app()
