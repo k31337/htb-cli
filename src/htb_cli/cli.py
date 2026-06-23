@@ -47,5 +47,42 @@ def machines() -> None:
     console.print(table)
 
 
+@app.command()
+def machine(id_or_name: str) -> None:
+    """Show details of a single machine by ID or name."""
+    try:
+        client = HTBClient()
+        info = client.machine_profile(id_or_name)
+    except HTBAPIError as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(code=1)
+    except httpx.HTTPStatusError as exc:
+        console.print(f"[red]HTTP error:[/red] {exc}")
+        raise typer.Exit(code=1)
+
+    table = Table(title=str(info.get("name", id_or_name)), show_header=False)
+    table.add_column("Field", style="bold")
+    table.add_column("Value")
+
+    fields = [
+        ("ID", "id"),
+        ("OS", "os"),
+        ("Difficulty", "difficultyText"),
+        ("Points", "points"),
+        ("IP", "ip"),
+        ("Maker", "makerName"),
+        ("Rating", "stars"),
+        ("User owns", "userOwnsCount"),
+        ("Root owns", "rootOwnsCount"),
+        ("Retired", "retired"),
+        ("Release", "release"),
+    ]
+    for label, key in fields:
+        if key in info:
+            table.add_row(label, str(info.get(key, "")))
+
+    console.print(table)
+
+
 if __name__ == "__main__":
     app()

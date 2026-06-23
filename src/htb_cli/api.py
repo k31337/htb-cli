@@ -34,3 +34,7 @@ class HTBClient:
     def active_machines(self) -> list[dict]:
         data = self.get("/machine/paginated")
         return data.get("data", data) if isinstance(data, dict) else data
+
+    def machine_profile(self, id_or_name: str) -> dict:
+        data = self.get(f"/machine/profile/{id_or_name}")
+        return data.get("info", data) if isinstance(data, dict) else data
