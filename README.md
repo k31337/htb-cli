@@ -24,10 +24,12 @@ pip install -e .
 
 ## Configuration
 
-The CLI reads your HTB token from the `HTB_TOKEN` environment variable:
+The CLI reads your HTB token from the `HTB_TOKEN` environment variable.
 
 ```bash
-export HTB_TOKEN=your_token_here
+export HTB_TOKEN=your_token_here          # Git Bash
+# $env:HTB_TOKEN = "your_token_here"      # PowerShell
+# set HTB_TOKEN=your_token_here           # CMD
 ```
 
 ## Usage
@@ -36,14 +38,16 @@ export HTB_TOKEN=your_token_here
 htb --help
 htb version
 htb machines
+htb machine <id_or_name>
 ```
 
 ### Commands
 
-| Command    | Description                  |
-| ---------- | ----------------------------- |
-| `version`  | Show the CLI version          |
-| `machines` | List active machines on HTB   |
+| Command              | Description                              |
+| --------------------- | ----------------------------------------- |
+| `version`             | Show the CLI version                      |
+| `machines`            | List active machines on HTB               |
+| `machine <id_or_name>`| Show details of a single machine          |
 
 ## Project structure
 
