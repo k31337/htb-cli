@@ -32,5 +32,5 @@ class HTBClient:
         return response.json()
 
     def active_machines(self) -> list[dict]:
-        data = self.get("/machine/list")
-        return data.get("info", data) if isinstance(data, dict) else data
+        data = self.get("/machine/paginated")
+        return data.get("data", data) if isinstance(data, dict) else data
