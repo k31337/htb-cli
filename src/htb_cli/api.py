@@ -42,13 +42,23 @@ class HTBClient:
         response.raise_for_status()
         return response.json()
 
+    def get_all_pages(self, path: str) -> list[dict]:
+        items: list[dict] = []
+        page = 1
+        while True:
+            data = self.get(path, params={"page": page})
+            items.extend(data.get("data", []))
+            last_page = data.get("meta", {}).get("last_page", page)
+            if page >= last_page:
+                break
+            page += 1
+        return items
+
     def active_machines(self) -> list[dict]:
-        data = self.get("/machine/paginated")
-        return data.get("data", data) if isinstance(data, dict) else data
+        return self.get_all_pages("/machine/paginated")
 
     def retired_machines(self) -> list[dict]:
-        data = self.get("/machine/list/retired/paginated")
-        return data.get("data", data) if isinstance(data, dict) else data
+        return self.get_all_pages("/machine/list/retired/paginated")
 
     def machine_profile(self, id_or_name: str) -> dict:
         data = self.get(f"/machine/profile/{id_or_name}")
