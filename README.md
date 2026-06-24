@@ -1,12 +1,15 @@
 # htb-cli
 
+![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)
+![License](https://img.shields.io/badge/license-GPLv3-blue)
+![Status](https://img.shields.io/badge/status-work%20in%20progress-yellow)
+![Built with Typer](https://img.shields.io/badge/built%20with-Typer-009485?logo=python&logoColor=white)
+
 An unofficial command-line tool to query the [Hack The Box](https://www.hackthebox.com/) API: list machines, check their details, and view your profile, all from the terminal.
 
 Built with [Typer](https://typer.tiangolo.com/) and [Rich](https://rich.readthedocs.io/).
 
-## Status
-
-Work in progress, built incrementally. New commands are added over time.
+> Work in progress, built incrementally — new commands are added over time.
 
 ## Requirements
 
