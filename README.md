@@ -139,30 +139,14 @@ htb <command> --help
 
 Listings (`machines`, `challenges`) are paginated 15 results at a time: press `n` for next page, `p` for previous, `q` to quit. Pass `--json` to any read command to get raw JSON instead, for piping into tools like `jq`.
 
-### Examples
+### A typical session
 
 ```bash
 htb login
-
-# Browse
 htb machines
-htb machines --retired
-htb machine 912
-htb machine Nimbus
-htb challenges
-htb challenge 59
-
-# Play
 htb spawn 912
 htb submit 912 32f7a3b1...
-htb reset 912
 htb stop 912
-
-# Scripting
-htb machines --json | jq '.[0].name'
-
-# Yourself
-htb profile
 ```
 
 ## Troubleshooting
@@ -195,9 +179,7 @@ src/htb_cli/
     ├── machines.py    # machines, machine, spawn, stop, reset, submit
     ├── challenges.py  # challenges, challenge
     └── profile.py     # profile
-```
 
-```
 tests/
 ├── conftest.py        # Shared fixtures (fake token, isolated config file)
 ├── test_token_storage.py
