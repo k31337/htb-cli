@@ -206,6 +206,40 @@ def challenges() -> None:
 
 @app.command()
 @handle_api_errors
+def challenge(challenge_id: int) -> None:
+    """Show details of a single challenge by ID."""
+    client = HTBClient()
+    info = client.challenge_profile(challenge_id)
+
+    table = Table(
+        title=str(info.get("name", challenge_id)),
+        box=box.ROUNDED,
+        title_style="bold green",
+        show_header=False,
+    )
+    table.add_column("Field", style="bold cyan")
+    table.add_column("Value")
+
+    fields = [
+        ("ID", "id", None),
+        ("Category", "category_name", None),
+        ("Difficulty", "difficulty", _difficulty_text),
+        ("Points", "points", None),
+        ("Solves", "solves", None),
+        ("Rating", "rating", None),
+        ("Retired", "retired", None),
+        ("Release date", "release_date", None),
+    ]
+    for label, key, formatter in fields:
+        if key in info:
+            value = info.get(key, "")
+            table.add_row(label, formatter(value) if formatter else str(value))
+
+    console.print(table)
+
+
+@app.command()
+@handle_api_errors
 def profile() -> None:
     """Show your own HTB profile."""
     client = HTBClient()

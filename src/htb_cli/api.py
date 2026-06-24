@@ -109,6 +109,14 @@ class HTBClient:
 
         return items
 
+    def challenge_profile(self, challenge_id: int) -> dict:
+        data = self.get(f"/challenge/info/{challenge_id}")
+        info = data.get("challenge", data) if isinstance(data, dict) else data
+        category_id = info.get("category_id", info.get("challenge_category_id"))
+        if category_id is not None:
+            info["category_name"] = self.challenge_categories().get(category_id, "")
+        return info
+
     def own_profile(self) -> dict:
         user_id = self._own_user_id()
         data = self.get(f"/user/profile/basic/{user_id}")
