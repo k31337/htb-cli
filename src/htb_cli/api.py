@@ -94,9 +94,20 @@ class HTBClient:
         data = self.get(f"/machine/profile/{id_or_name}")
         return data.get("info", data) if isinstance(data, dict) else data
 
+    def challenge_categories(self) -> dict[int, str]:
+        data = self.get("/challenge/categories/list")
+        categories = data.get("info", data) if isinstance(data, dict) else data
+        return {category["id"]: category["name"] for category in categories}
+
     def challenges(self) -> list[dict]:
         data = self.get("/challenge/list")
-        return data.get("challenges", data) if isinstance(data, dict) else data
+        items = data.get("challenges", data) if isinstance(data, dict) else data
+
+        categories = self.challenge_categories()
+        for item in items:
+            item["category_name"] = categories.get(item.get("challenge_category_id"), "")
+
+        return items
 
     def own_profile(self) -> dict:
         user_id = self._own_user_id()

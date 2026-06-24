@@ -186,7 +186,7 @@ def _build_challenges_table(items: list[dict]) -> Table:
         table.add_row(
             str(challenge.get("id", "")),
             str(challenge.get("name", "")),
-            str(challenge.get("challenge_category", challenge.get("category_name", ""))),
+            str(challenge.get("category_name", "")),
             _difficulty_text(challenge.get("difficulty", "")),
             str(challenge.get("points", "")),
         )
