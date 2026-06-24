@@ -17,7 +17,7 @@ class HTBAPIError(Exception):
 
 def save_token(token: str) -> None:
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-    CONFIG_FILE.write_text(json.dumps({"token": token}))
+    CONFIG_FILE.write_text(json.dumps({"token": token.strip()}))
     if os.name != "nt":
         os.chmod(CONFIG_FILE, stat.S_IRUSR | stat.S_IWUSR)
 
@@ -26,7 +26,8 @@ def load_token() -> str | None:
     if not CONFIG_FILE.exists():
         return None
     try:
-        return json.loads(CONFIG_FILE.read_text()).get("token")
+        token = json.loads(CONFIG_FILE.read_text()).get("token")
+        return token.strip() if token else None
     except (json.JSONDecodeError, OSError):
         return None
 
@@ -40,7 +41,7 @@ def delete_token() -> bool:
 
 class HTBClient:
     def __init__(self, token: str | None = None) -> None:
-        self.token = token or os.environ.get("HTB_TOKEN") or load_token()
+        self.token = (token or os.environ.get("HTB_TOKEN") or load_token() or "").strip() or None
         if not self.token:
             raise HTBAPIError(
                 "HTB token not found. Run 'htb login' or set the HTB_TOKEN environment variable."
