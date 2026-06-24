@@ -1,5 +1,6 @@
 # htb-cli
 
+![CI](https://github.com/k31337/htb-cli/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/license-GPLv3-blue)
 ![Status](https://img.shields.io/badge/status-work%20in%20progress-yellow)
@@ -172,6 +173,15 @@ htb profile
 - **`Not found. Check the ID or name and try again.`**: the ID/name doesn't exist or was mistyped — double check it on the HTB website.
 - **Spawning/resetting fails with a message about VIP**: starting most active machines requires an HTB VIP subscription.
 
+## Running tests
+
+Tests mock the HTB API with [respx](https://lundberg.github.io/respx/), so they don't need a real token or network access.
+
+```bash
+pip install -e ".[test]"
+pytest -v
+```
+
 ## Project structure
 
 ```
@@ -185,6 +195,13 @@ src/htb_cli/
     ├── machines.py    # machines, machine, spawn, stop, reset, submit
     ├── challenges.py  # challenges, challenge
     └── profile.py     # profile
+```
+
+```
+tests/
+├── conftest.py        # Shared fixtures (fake token, isolated config file)
+├── test_token_storage.py
+└── test_api_client.py
 ```
 
 ## Disclaimer
