@@ -67,12 +67,23 @@ class HTBClient:
     def get(self, path: str, params: dict | None = None) -> dict:
         url = f"{BASE_URL}{path}"
         response = httpx.get(url, headers=self._headers(), params=params, timeout=15)
+        return self._handle_response(response)
+
+    def post(self, path: str, json_body: dict | None = None) -> dict:
+        url = f"{BASE_URL}{path}"
+        response = httpx.post(url, headers=self._headers(), json=json_body, timeout=15)
+        return self._handle_response(response)
+
+    def _handle_response(self, response: httpx.Response) -> dict:
         if response.status_code == 401:
             raise HTBAPIError("Invalid or expired token.")
         if response.status_code == 404:
             raise HTBAPIError("Not found. Check the ID or name and try again.")
+        if response.status_code == 400:
+            message = response.json().get("message", "Bad request.") if response.content else "Bad request."
+            raise HTBAPIError(message)
         response.raise_for_status()
-        return response.json()
+        return response.json() if response.content else {}
 
     def get_all_pages(self, path: str) -> list[dict]:
         items: list[dict] = []
@@ -118,6 +129,17 @@ class HTBClient:
         if category_id is not None:
             info["category_name"] = self.challenge_categories().get(category_id, "")
         return info
+
+    def spawn_machine(self, machine_id: int) -> dict:
+        return self.post("/vm/spawn", json_body={"machine_id": machine_id})
+
+    def stop_machine(self, machine_id: int) -> dict:
+        return self.post("/vm/terminate", json_body={"machine_id": machine_id})
+
+    def active_machine(self) -> dict | None:
+        data = self.get("/machine/active")
+        info = data.get("info", data) if isinstance(data, dict) else data
+        return info or None
 
     def own_profile(self) -> dict:
         user_id = self._own_user_id()

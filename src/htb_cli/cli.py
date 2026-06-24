@@ -1,6 +1,7 @@
 import functools
 import math
 import os
+import time
 from importlib.metadata import version as _package_version
 from typing import Callable
 
@@ -17,6 +18,8 @@ app = typer.Typer(help="Unofficial CLI to query the Hack The Box API")
 console = Console()
 
 PAGE_SIZE = 15
+SPAWN_POLL_SECONDS = 5
+SPAWN_TIMEOUT_SECONDS = 180
 
 DIFFICULTY_COLORS = {
     "easy": "green",
@@ -188,6 +191,36 @@ def machine(id_or_name: str, as_json: bool = JSON_OPTION) -> None:
             table.add_row(label, formatter(value) if formatter else str(value))
 
     console.print(table)
+
+
+@app.command()
+@handle_api_errors
+def spawn(machine_id: int) -> None:
+    """Spawn a machine and wait for its IP to be ready."""
+    client = HTBClient()
+    client.spawn_machine(machine_id)
+    console.print(f"[green]Spawning machine {machine_id}...[/green]")
+
+    elapsed = 0
+    with console.status("Waiting for the machine to be ready..."):
+        while elapsed < SPAWN_TIMEOUT_SECONDS:
+            info = client.active_machine()
+            if info and info.get("ip"):
+                console.print(f"[bold green]IP:[/bold green] {info['ip']}")
+                return
+            time.sleep(SPAWN_POLL_SECONDS)
+            elapsed += SPAWN_POLL_SECONDS
+
+    console.print("[yellow]Timed out waiting for an IP. Check 'htb machine <id>' or the HTB website.[/yellow]")
+
+
+@app.command()
+@handle_api_errors
+def stop(machine_id: int) -> None:
+    """Stop the currently active machine."""
+    client = HTBClient()
+    client.stop_machine(machine_id)
+    console.print(f"[green]Machine {machine_id} stopped.[/green]")
 
 
 def _build_challenges_table(items: list[dict]) -> Table:
