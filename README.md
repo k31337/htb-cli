@@ -29,6 +29,28 @@ Keep this token private. Anyone with it can act on the API as you. If it ever le
 ```bash
 git clone https://github.com/<your-user>/htb-cli.git
 cd htb-cli
+```
+
+### Option 1: pipx (recommended)
+
+[pipx](https://pipx.pypa.io/) installs the CLI in its own isolated environment but makes the `htb` command available everywhere, with no need to activate anything.
+
+```bash
+python -m pip install --user pipx
+python -m pipx ensurepath
+```
+
+Close and reopen your terminal so the `PATH` change takes effect, then:
+
+```bash
+pipx install -e .
+```
+
+The `-e` (editable) flag means pipx links directly to this repo, so any changes you pull or make are picked up immediately without reinstalling.
+
+### Option 2: virtual environment
+
+```bash
 python -m venv .venv
 pip install -e .
 ```
@@ -86,6 +108,7 @@ htb --help
 | `htb machines --retired`    | List retired machines on HTB                          |
 | `htb machine <id_or_name>`  | Show details of a single machine                      |
 | `htb challenges`            | List challenges on HTB                                |
+| `htb challenge <id>`        | Show details of a single challenge                    |
 | `htb profile`               | Show your own HTB profile                             |
 
 Listings (`machines`, `challenges`) are paginated 15 results at a time: press `n` for next page, `p` for previous, `q` to quit.
@@ -99,12 +122,13 @@ htb machines --retired
 htb machine 912
 htb machine Nimbus
 htb challenges
+htb challenge 59
 htb profile
 ```
 
 ## Troubleshooting
 
-- **`'htb' is not recognized as an internal or external command`**: your virtual environment isn't active. Activate it as shown above.
+- **`'htb' is not recognized as an internal or external command`**: if you installed with pipx, make sure you ran `pipx ensurepath` and reopened your terminal, and that you've run `pipx install -e .` from the repo folder. If you used the venv option, activate it as shown above.
 - **`HTB token not found`**: run `htb login`, or set the `HTB_TOKEN` environment variable in your current terminal session.
 - **`Invalid or expired token`**: generate a new token from Settings > App Tokens, then run `htb login` again (or update `HTB_TOKEN`).
 
