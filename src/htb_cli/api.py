@@ -42,10 +42,12 @@ class HTBClient:
         response.raise_for_status()
         return response.json()
 
+    MAX_PAGES = 200
+
     def get_all_pages(self, path: str) -> list[dict]:
         items: list[dict] = []
         page = 1
-        while True:
+        while page <= self.MAX_PAGES:
             data = self.get(path, params={"page": page})
             items.extend(data.get("data", []))
             last_page = data.get("meta", {}).get("last_page", page)
