@@ -11,7 +11,7 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from htb_cli.api import HTBAPIError, HTBClient
+from htb_cli.api import HTBAPIError, HTBClient, delete_token, save_token
 
 app = typer.Typer(help="Unofficial CLI to query the Hack The Box API")
 console = Console()
@@ -85,6 +85,23 @@ def handle_api_errors(func):
 def version() -> None:
     """Show the CLI version."""
     console.print(f"htb-cli {_package_version('htb-cli')}")
+
+
+@app.command()
+def login() -> None:
+    """Save your HTB API token so you don't have to set HTB_TOKEN every time."""
+    token = typer.prompt("HTB API token", hide_input=True)
+    save_token(token)
+    console.print(f"[green]Token saved to {os.path.expanduser('~/.htb-cli/config.json')}[/green]")
+
+
+@app.command()
+def logout() -> None:
+    """Remove the saved HTB API token."""
+    if delete_token():
+        console.print("[green]Token removed.[/green]")
+    else:
+        console.print("[yellow]No saved token found.[/yellow]")
 
 
 def _build_machines_table(title: str, items: list[dict]) -> Table:

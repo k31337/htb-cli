@@ -1,22 +1,49 @@
 import base64
 import json
 import os
+import stat
+from pathlib import Path
 
 import httpx
 
 BASE_URL = "https://labs.hackthebox.com/api/v4"
+CONFIG_DIR = Path.home() / ".htb-cli"
+CONFIG_FILE = CONFIG_DIR / "config.json"
 
 
 class HTBAPIError(Exception):
     pass
 
 
+def save_token(token: str) -> None:
+    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    CONFIG_FILE.write_text(json.dumps({"token": token}))
+    if os.name != "nt":
+        os.chmod(CONFIG_FILE, stat.S_IRUSR | stat.S_IWUSR)
+
+
+def load_token() -> str | None:
+    if not CONFIG_FILE.exists():
+        return None
+    try:
+        return json.loads(CONFIG_FILE.read_text()).get("token")
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def delete_token() -> bool:
+    if CONFIG_FILE.exists():
+        CONFIG_FILE.unlink()
+        return True
+    return False
+
+
 class HTBClient:
     def __init__(self, token: str | None = None) -> None:
-        self.token = token or os.environ.get("HTB_TOKEN")
+        self.token = token or os.environ.get("HTB_TOKEN") or load_token()
         if not self.token:
             raise HTBAPIError(
-                "HTB token not found. Set the HTB_TOKEN environment variable."
+                "HTB token not found. Run 'htb login' or set the HTB_TOKEN environment variable."
             )
 
     def _own_user_id(self) -> str:
