@@ -223,6 +223,20 @@ def stop(machine_id: int) -> None:
     console.print(f"[green]Machine {machine_id} stopped.[/green]")
 
 
+@app.command()
+@handle_api_errors
+def submit(
+    machine_id: int,
+    flag: str,
+    difficulty: int = typer.Option(50, "--difficulty", help="Your difficulty rating (1-100)."),
+) -> None:
+    """Submit a user/root flag for a machine."""
+    client = HTBClient()
+    result = client.submit_flag(machine_id, flag, difficulty)
+    message = result.get("message", "Flag submitted.")
+    console.print(f"[bold green]{message}[/bold green]")
+
+
 def _build_challenges_table(items: list[dict]) -> Table:
     table = Table(title="Challenges", box=box.ROUNDED, title_style="bold green", header_style="bold")
     table.add_column("ID", justify="right", style="dim")

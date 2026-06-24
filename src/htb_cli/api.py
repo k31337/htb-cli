@@ -130,6 +130,12 @@ class HTBClient:
             info["category_name"] = self.challenge_categories().get(category_id, "")
         return info
 
+    def submit_flag(self, machine_id: int, flag: str, difficulty: int = 50) -> dict:
+        return self.post(
+            "/machine/own",
+            json_body={"id": machine_id, "flag": flag, "difficulty": difficulty},
+        )
+
     def spawn_machine(self, machine_id: int) -> dict:
         return self.post("/vm/spawn", json_body={"machine_id": machine_id})
 
