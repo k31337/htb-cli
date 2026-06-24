@@ -177,8 +177,14 @@ htb profile
 ```
 src/htb_cli/
 ├── __init__.py
-├── api.py   # HTTP client for the HTB API
-└── cli.py   # Typer commands
+├── api.py             # HTTP client for the HTB API
+├── cli.py             # Entry point: registers commands from each module below
+└── commands/
+    ├── _shared.py     # Shared console, error handling, pagination, formatters
+    ├── auth.py        # version, login, logout
+    ├── machines.py    # machines, machine, spawn, stop, reset, submit
+    ├── challenges.py  # challenges, challenge
+    └── profile.py     # profile
 ```
 
 ## Disclaimer
