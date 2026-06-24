@@ -35,6 +35,13 @@ def _os_text(os_name: str) -> str:
     return "[cyan]" + str(os_name) + "[/cyan]"
 
 
+JSON_OPTION = typer.Option(False, "--json", help="Output raw JSON instead of a formatted table.")
+
+
+def _print_json(value) -> None:
+    console.print_json(data=value)
+
+
 def _paginate(build_table: Callable[[list[dict]], Table], items: list[dict]) -> None:
     """Render items in pages of PAGE_SIZE, letting the user step through with n/p/q."""
     total_pages = max(1, math.ceil(len(items) / PAGE_SIZE))
@@ -128,10 +135,15 @@ def _build_machines_table(title: str, items: list[dict]) -> Table:
 @handle_api_errors
 def machines(
     retired: bool = typer.Option(False, "--retired", help="List retired machines instead of active ones."),
+    as_json: bool = JSON_OPTION,
 ) -> None:
     """List active or retired machines on HTB."""
     client = HTBClient()
     items = client.retired_machines() if retired else client.active_machines()
+
+    if as_json:
+        _print_json(items)
+        return
 
     title = "Retired machines" if retired else "Active machines"
     _paginate(lambda chunk: _build_machines_table(title, chunk), items)
@@ -139,10 +151,14 @@ def machines(
 
 @app.command()
 @handle_api_errors
-def machine(id_or_name: str) -> None:
+def machine(id_or_name: str, as_json: bool = JSON_OPTION) -> None:
     """Show details of a single machine by ID or name."""
     client = HTBClient()
     info = client.machine_profile(id_or_name)
+
+    if as_json:
+        _print_json(info)
+        return
 
     table = Table(
         title=str(info.get("name", id_or_name)),
@@ -196,20 +212,28 @@ def _build_challenges_table(items: list[dict]) -> Table:
 
 @app.command()
 @handle_api_errors
-def challenges() -> None:
+def challenges(as_json: bool = JSON_OPTION) -> None:
     """List challenges on HTB."""
     client = HTBClient()
     items = client.challenges()
+
+    if as_json:
+        _print_json(items)
+        return
 
     _paginate(_build_challenges_table, items)
 
 
 @app.command()
 @handle_api_errors
-def challenge(challenge_id: int) -> None:
+def challenge(challenge_id: int, as_json: bool = JSON_OPTION) -> None:
     """Show details of a single challenge by ID."""
     client = HTBClient()
     info = client.challenge_profile(challenge_id)
+
+    if as_json:
+        _print_json(info)
+        return
 
     table = Table(
         title=str(info.get("name", challenge_id)),
@@ -240,10 +264,14 @@ def challenge(challenge_id: int) -> None:
 
 @app.command()
 @handle_api_errors
-def profile() -> None:
+def profile(as_json: bool = JSON_OPTION) -> None:
     """Show your own HTB profile."""
     client = HTBClient()
     info = client.own_profile()
+
+    if as_json:
+        _print_json(info)
+        return
 
     table = Table(
         title=str(info.get("name", "Profile")),
