@@ -3,6 +3,7 @@ from importlib.metadata import version as _package_version
 
 import httpx
 import typer
+from rich import box
 from rich.console import Console
 from rich.table import Table
 
@@ -10,6 +11,22 @@ from htb_cli.api import HTBAPIError, HTBClient
 
 app = typer.Typer(help="Unofficial CLI to query the Hack The Box API")
 console = Console()
+
+DIFFICULTY_COLORS = {
+    "easy": "green",
+    "medium": "yellow",
+    "hard": "red",
+    "insane": "magenta",
+}
+
+
+def _difficulty_text(difficulty: str) -> str:
+    color = DIFFICULTY_COLORS.get(str(difficulty).lower())
+    return f"[{color}]{difficulty}[/{color}]" if color else str(difficulty)
+
+
+def _os_text(os_name: str) -> str:
+    return "[cyan]" + str(os_name) + "[/cyan]"
 
 
 def handle_api_errors(func):
@@ -36,19 +53,19 @@ def version() -> None:
 
 
 def _print_machines_table(title: str, items: list[dict]) -> None:
-    table = Table(title=title)
-    table.add_column("ID")
-    table.add_column("Name")
+    table = Table(title=title, box=box.ROUNDED, title_style="bold green", header_style="bold")
+    table.add_column("ID", justify="right", style="dim")
+    table.add_column("Name", style="bold")
     table.add_column("OS")
     table.add_column("Difficulty")
-    table.add_column("Points")
+    table.add_column("Points", justify="right")
 
     for machine in items:
         table.add_row(
             str(machine.get("id", "")),
             str(machine.get("name", "")),
-            str(machine.get("os", "")),
-            str(machine.get("difficultyText", "")),
+            _os_text(machine.get("os", "")),
+            _difficulty_text(machine.get("difficultyText", "")),
             str(machine.get("points", "")),
         )
 
@@ -75,26 +92,32 @@ def machine(id_or_name: str) -> None:
     client = HTBClient()
     info = client.machine_profile(id_or_name)
 
-    table = Table(title=str(info.get("name", id_or_name)), show_header=False)
-    table.add_column("Field", style="bold")
+    table = Table(
+        title=str(info.get("name", id_or_name)),
+        box=box.ROUNDED,
+        title_style="bold green",
+        show_header=False,
+    )
+    table.add_column("Field", style="bold cyan")
     table.add_column("Value")
 
     fields = [
-        ("ID", "id"),
-        ("OS", "os"),
-        ("Difficulty", "difficultyText"),
-        ("Points", "points"),
-        ("IP", "ip"),
-        ("Maker", "makerName"),
-        ("Rating", "stars"),
-        ("User owns", "userOwnsCount"),
-        ("Root owns", "rootOwnsCount"),
-        ("Retired", "retired"),
-        ("Release", "release"),
+        ("ID", "id", None),
+        ("OS", "os", _os_text),
+        ("Difficulty", "difficultyText", _difficulty_text),
+        ("Points", "points", None),
+        ("IP", "ip", None),
+        ("Maker", "makerName", None),
+        ("Rating", "stars", None),
+        ("User owns", "userOwnsCount", None),
+        ("Root owns", "rootOwnsCount", None),
+        ("Retired", "retired", None),
+        ("Release", "release", None),
     ]
-    for label, key in fields:
+    for label, key, formatter in fields:
         if key in info:
-            table.add_row(label, str(info.get(key, "")))
+            value = info.get(key, "")
+            table.add_row(label, formatter(value) if formatter else str(value))
 
     console.print(table)
 
@@ -106,19 +129,19 @@ def challenges() -> None:
     client = HTBClient()
     items = client.challenges()
 
-    table = Table(title="Challenges")
-    table.add_column("ID")
-    table.add_column("Name")
+    table = Table(title="Challenges", box=box.ROUNDED, title_style="bold green", header_style="bold")
+    table.add_column("ID", justify="right", style="dim")
+    table.add_column("Name", style="bold")
     table.add_column("Category")
     table.add_column("Difficulty")
-    table.add_column("Points")
+    table.add_column("Points", justify="right")
 
     for challenge in items:
         table.add_row(
             str(challenge.get("id", "")),
             str(challenge.get("name", "")),
             str(challenge.get("challenge_category", challenge.get("category_name", ""))),
-            str(challenge.get("difficulty", "")),
+            _difficulty_text(challenge.get("difficulty", "")),
             str(challenge.get("points", "")),
         )
 
@@ -132,8 +155,13 @@ def profile() -> None:
     client = HTBClient()
     info = client.own_profile()
 
-    table = Table(title=str(info.get("name", "Profile")), show_header=False)
-    table.add_column("Field", style="bold")
+    table = Table(
+        title=str(info.get("name", "Profile")),
+        box=box.ROUNDED,
+        title_style="bold green",
+        show_header=False,
+    )
+    table.add_column("Field", style="bold cyan")
     table.add_column("Value")
 
     fields = [
