@@ -1,20 +1,33 @@
 import typer
-from rich import box
 from rich.table import Table
 
 from htb_cli.api import HTBClient
-from htb_cli.commands._shared import JSON_OPTION, console, difficulty_text, handle_api_errors, paginate, print_json
+from htb_cli.commands._shared import (
+    JSON_OPTION,
+    build_detail_panel,
+    build_listing_table,
+    console,
+    difficulty_text,
+    handle_api_errors,
+    paginate,
+    points_text,
+    print_json,
+)
 
 app = typer.Typer()
 
 
 def _build_challenges_table(items: list[dict]) -> Table:
-    table = Table(title="Challenges", box=box.ROUNDED, title_style="bold green", header_style="bold")
-    table.add_column("ID", justify="right", style="dim")
-    table.add_column("Name", style="bold")
-    table.add_column("Category")
-    table.add_column("Difficulty")
-    table.add_column("Points", justify="right")
+    table = build_listing_table(
+        "Challenges",
+        [
+            ("ID", {"justify": "right", "style": "dim"}),
+            ("Name", {"style": "bold"}),
+            ("Category", {}),
+            ("Difficulty", {}),
+            ("Points", {"justify": "right"}),
+        ],
+    )
 
     for challenge in items:
         table.add_row(
@@ -22,7 +35,7 @@ def _build_challenges_table(items: list[dict]) -> Table:
             str(challenge.get("name", "")),
             str(challenge.get("category_name", "")),
             difficulty_text(challenge.get("difficulty", "")),
-            str(challenge.get("points", "")),
+            points_text(challenge.get("points", "")),
         )
 
     return table
@@ -53,28 +66,20 @@ def challenge(challenge_id: int, as_json: bool = JSON_OPTION) -> None:
         print_json(info)
         return
 
-    table = Table(
-        title=str(info.get("name", challenge_id)),
-        box=box.ROUNDED,
-        title_style="bold green",
-        show_header=False,
-    )
-    table.add_column("Field", style="bold cyan")
-    table.add_column("Value")
-
-    fields = [
+    field_specs = [
         ("ID", "id", None),
         ("Category", "category_name", None),
         ("Difficulty", "difficulty", difficulty_text),
-        ("Points", "points", None),
+        ("Points", "points", points_text),
         ("Solves", "solves", None),
         ("Rating", "rating", None),
         ("Retired", "retired", None),
         ("Release date", "release_date", None),
     ]
-    for label, key, formatter in fields:
-        if key in info:
-            value = info.get(key, "")
-            table.add_row(label, formatter(value) if formatter else str(value))
+    fields = [
+        (label, formatter(info[key]) if formatter else str(info[key]))
+        for label, key, formatter in field_specs
+        if key in info
+    ]
 
-    console.print(table)
+    console.print(build_detail_panel(str(info.get("name", challenge_id)), fields))

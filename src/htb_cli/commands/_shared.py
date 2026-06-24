@@ -6,7 +6,9 @@ from typing import Callable
 import click
 import httpx
 import typer
+from rich import box
 from rich.console import Console
+from rich.panel import Panel
 from rich.table import Table
 
 from htb_cli.api import HTBAPIError
@@ -27,11 +29,41 @@ JSON_OPTION = typer.Option(False, "--json", help="Output raw JSON instead of a f
 
 def difficulty_text(difficulty: str) -> str:
     color = DIFFICULTY_COLORS.get(str(difficulty).lower())
-    return f"[{color}]{difficulty}[/{color}]" if color else str(difficulty)
+    return f"[bold {color}]{difficulty}[/bold {color}]" if color else str(difficulty)
 
 
 def os_text(os_name: str) -> str:
     return "[cyan]" + str(os_name) + "[/cyan]"
+
+
+def points_text(points) -> str:
+    return f"[bold cyan]{points}[/bold cyan]"
+
+
+def build_listing_table(title: str, columns: list[tuple[str, dict]]) -> Table:
+    """A list table with zebra striping, used for machines/challenges listings."""
+    table = Table(
+        title=title,
+        box=box.SIMPLE_HEAVY,
+        header_style="bold white on grey23",
+        row_styles=["", "on grey15"],
+        title_style="bold green",
+        expand=False,
+    )
+    for name, kwargs in columns:
+        table.add_column(name, **kwargs)
+    return table
+
+
+def build_detail_panel(title: str, fields: list[tuple[str, str]]) -> Panel:
+    """A two-column key/value table wrapped in a panel, used for *-detail commands."""
+    table = Table(box=None, show_header=False, padding=(0, 1))
+    table.add_column(style="bold cyan", justify="right")
+    table.add_column()
+    for label, value in fields:
+        table.add_row(label, value)
+
+    return Panel(table, title=f"[bold green]{title}[/bold green]", border_style="green", box=box.ROUNDED)
 
 
 def print_json(value: dict | list) -> None:

@@ -1,17 +1,19 @@
 import time
 
 import typer
-from rich import box
 from rich.table import Table
 
 from htb_cli.api import HTBClient
 from htb_cli.commands._shared import (
     JSON_OPTION,
+    build_detail_panel,
+    build_listing_table,
     console,
     difficulty_text,
     handle_api_errors,
     os_text,
     paginate,
+    points_text,
     print_json,
 )
 
@@ -22,12 +24,16 @@ SPAWN_TIMEOUT_SECONDS = 180
 
 
 def _build_machines_table(title: str, items: list[dict]) -> Table:
-    table = Table(title=title, box=box.ROUNDED, title_style="bold green", header_style="bold")
-    table.add_column("ID", justify="right", style="dim")
-    table.add_column("Name", style="bold")
-    table.add_column("OS")
-    table.add_column("Difficulty")
-    table.add_column("Points", justify="right")
+    table = build_listing_table(
+        title,
+        [
+            ("ID", {"justify": "right", "style": "dim"}),
+            ("Name", {"style": "bold"}),
+            ("OS", {}),
+            ("Difficulty", {}),
+            ("Points", {"justify": "right"}),
+        ],
+    )
 
     for machine in items:
         table.add_row(
@@ -35,7 +41,7 @@ def _build_machines_table(title: str, items: list[dict]) -> Table:
             str(machine.get("name", "")),
             os_text(machine.get("os", "")),
             difficulty_text(machine.get("difficultyText", "")),
-            str(machine.get("points", "")),
+            points_text(machine.get("points", "")),
         )
 
     return table
@@ -70,20 +76,11 @@ def machine(id_or_name: str, as_json: bool = JSON_OPTION) -> None:
         print_json(info)
         return
 
-    table = Table(
-        title=str(info.get("name", id_or_name)),
-        box=box.ROUNDED,
-        title_style="bold green",
-        show_header=False,
-    )
-    table.add_column("Field", style="bold cyan")
-    table.add_column("Value")
-
-    fields = [
+    field_specs = [
         ("ID", "id", None),
         ("OS", "os", os_text),
         ("Difficulty", "difficultyText", difficulty_text),
-        ("Points", "points", None),
+        ("Points", "points", points_text),
         ("IP", "ip", None),
         ("Maker", "makerName", None),
         ("Rating", "stars", None),
@@ -92,12 +89,13 @@ def machine(id_or_name: str, as_json: bool = JSON_OPTION) -> None:
         ("Retired", "retired", None),
         ("Release", "release", None),
     ]
-    for label, key, formatter in fields:
-        if key in info:
-            value = info.get(key, "")
-            table.add_row(label, formatter(value) if formatter else str(value))
+    fields = [
+        (label, formatter(info[key]) if formatter else str(info[key]))
+        for label, key, formatter in field_specs
+        if key in info
+    ]
 
-    console.print(table)
+    console.print(build_detail_panel(str(info.get("name", id_or_name)), fields))
 
 
 @app.command()
