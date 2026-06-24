@@ -36,7 +36,7 @@ Keep this token private. Anyone with it can act on the API as you. If it ever le
 ## Installation
 
 ```bash
-git clone https://github.com/<your-user>/htb-cli.git
+git clone https://github.com/k31337/htb-cli.git
 cd htb-cli
 ```
 
