@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/k31337/htb-cli/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)
-![License](https://img.shields.io/badge/license-GPLv3-blue)
+![License](https://img.shields.io/badge/license-MIT-blue)
 ![Status](https://img.shields.io/badge/status-work%20in%20progress-yellow)
 ![Built with Typer](https://img.shields.io/badge/built%20with-Typer-009485?logo=python&logoColor=white)
 
