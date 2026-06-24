@@ -101,6 +101,32 @@ def machine(id_or_name: str) -> None:
 
 @app.command()
 @handle_api_errors
+def challenges() -> None:
+    """List challenges on HTB."""
+    client = HTBClient()
+    items = client.challenges()
+
+    table = Table(title="Challenges")
+    table.add_column("ID")
+    table.add_column("Name")
+    table.add_column("Category")
+    table.add_column("Difficulty")
+    table.add_column("Points")
+
+    for challenge in items:
+        table.add_row(
+            str(challenge.get("id", "")),
+            str(challenge.get("name", "")),
+            str(challenge.get("challenge_category", challenge.get("category_name", ""))),
+            str(challenge.get("difficulty", "")),
+            str(challenge.get("points", "")),
+        )
+
+    console.print(table)
+
+
+@app.command()
+@handle_api_errors
 def profile() -> None:
     """Show your own HTB profile."""
     client = HTBClient()

@@ -54,6 +54,10 @@ class HTBClient:
         data = self.get(f"/machine/profile/{id_or_name}")
         return data.get("info", data) if isinstance(data, dict) else data
 
+    def challenges(self) -> list[dict]:
+        data = self.get("/challenge/list")
+        return data.get("challenges", data) if isinstance(data, dict) else data
+
     def own_profile(self) -> dict:
         user_id = self._own_user_id()
         data = self.get(f"/user/profile/basic/{user_id}")
