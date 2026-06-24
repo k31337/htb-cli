@@ -1,3 +1,5 @@
+import functools
+
 import httpx
 import typer
 from rich.console import Console
@@ -7,6 +9,23 @@ from htb_cli.api import HTBAPIError, HTBClient
 
 app = typer.Typer(help="Unofficial CLI to query the Hack The Box API")
 console = Console()
+
+
+def handle_api_errors(func):
+    """Catch HTB API errors and print them consistently before exiting."""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except HTBAPIError as exc:
+            console.print(f"[red]Error:[/red] {exc}")
+            raise typer.Exit(code=1)
+        except httpx.HTTPStatusError as exc:
+            console.print(f"[red]HTTP error:[/red] {exc}")
+            raise typer.Exit(code=1)
+
+    return wrapper
 
 
 @app.command()
@@ -36,36 +55,24 @@ def _print_machines_table(title: str, items: list[dict]) -> None:
 
 
 @app.command()
+@handle_api_errors
 def machines(
     retired: bool = typer.Option(False, "--retired", help="List retired machines instead of active ones."),
 ) -> None:
     """List active or retired machines on HTB."""
-    try:
-        client = HTBClient()
-        items = client.retired_machines() if retired else client.active_machines()
-    except HTBAPIError as exc:
-        console.print(f"[red]Error:[/red] {exc}")
-        raise typer.Exit(code=1)
-    except httpx.HTTPStatusError as exc:
-        console.print(f"[red]HTTP error:[/red] {exc}")
-        raise typer.Exit(code=1)
+    client = HTBClient()
+    items = client.retired_machines() if retired else client.active_machines()
 
     title = "Retired machines" if retired else "Active machines"
     _print_machines_table(title, items)
 
 
 @app.command()
+@handle_api_errors
 def machine(id_or_name: str) -> None:
     """Show details of a single machine by ID or name."""
-    try:
-        client = HTBClient()
-        info = client.machine_profile(id_or_name)
-    except HTBAPIError as exc:
-        console.print(f"[red]Error:[/red] {exc}")
-        raise typer.Exit(code=1)
-    except httpx.HTTPStatusError as exc:
-        console.print(f"[red]HTTP error:[/red] {exc}")
-        raise typer.Exit(code=1)
+    client = HTBClient()
+    info = client.machine_profile(id_or_name)
 
     table = Table(title=str(info.get("name", id_or_name)), show_header=False)
     table.add_column("Field", style="bold")
@@ -92,17 +99,11 @@ def machine(id_or_name: str) -> None:
 
 
 @app.command()
+@handle_api_errors
 def profile() -> None:
     """Show your own HTB profile."""
-    try:
-        client = HTBClient()
-        info = client.own_profile()
-    except HTBAPIError as exc:
-        console.print(f"[red]Error:[/red] {exc}")
-        raise typer.Exit(code=1)
-    except httpx.HTTPStatusError as exc:
-        console.print(f"[red]HTTP error:[/red] {exc}")
-        raise typer.Exit(code=1)
+    client = HTBClient()
+    info = client.own_profile()
 
     table = Table(title=str(info.get("name", "Profile")), show_header=False)
     table.add_column("Field", style="bold")
