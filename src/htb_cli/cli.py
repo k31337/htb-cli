@@ -15,20 +15,8 @@ def version() -> None:
     console.print("htb-cli 0.1.0")
 
 
-@app.command()
-def machines() -> None:
-    """List active machines on HTB."""
-    try:
-        client = HTBClient()
-        items = client.active_machines()
-    except HTBAPIError as exc:
-        console.print(f"[red]Error:[/red] {exc}")
-        raise typer.Exit(code=1)
-    except httpx.HTTPStatusError as exc:
-        console.print(f"[red]HTTP error:[/red] {exc}")
-        raise typer.Exit(code=1)
-
-    table = Table(title="Active machines")
+def _print_machines_table(title: str, items: list[dict]) -> None:
+    table = Table(title=title)
     table.add_column("ID")
     table.add_column("Name")
     table.add_column("OS")
@@ -45,6 +33,25 @@ def machines() -> None:
         )
 
     console.print(table)
+
+
+@app.command()
+def machines(
+    retired: bool = typer.Option(False, "--retired", help="List retired machines instead of active ones."),
+) -> None:
+    """List active or retired machines on HTB."""
+    try:
+        client = HTBClient()
+        items = client.retired_machines() if retired else client.active_machines()
+    except HTBAPIError as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(code=1)
+    except httpx.HTTPStatusError as exc:
+        console.print(f"[red]HTTP error:[/red] {exc}")
+        raise typer.Exit(code=1)
+
+    title = "Retired machines" if retired else "Active machines"
+    _print_machines_table(title, items)
 
 
 @app.command()
