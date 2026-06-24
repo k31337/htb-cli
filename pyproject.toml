@@ -13,6 +13,12 @@ dependencies = [
     "click>=8.1",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+    "respx>=0.21",
+]
+
 [project.scripts]
 htb = "htb_cli.cli:app"
 
