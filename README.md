@@ -11,6 +11,15 @@ Built with [Typer](https://typer.tiangolo.com/) and [Rich](https://rich.readthed
 
 > Work in progress, built incrementally — new commands are added over time.
 
+## Contents
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Troubleshooting](#troubleshooting)
+- [Project structure](#project-structure)
+
 ## Requirements
 
 - Python 3.10 or higher
@@ -99,17 +108,17 @@ htb --help
 
 ### Commands
 
-| Command                     | Description                                          |
-| ---------------------------- | ----------------------------------------------------- |
-| `htb login`                 | Save your API token so you don't have to set it again |
-| `htb logout`                | Remove the saved API token                            |
-| `htb version`               | Show the CLI version                                  |
-| `htb machines`              | List active machines on HTB                           |
-| `htb machines --retired`    | List retired machines on HTB                          |
-| `htb machine <id_or_name>`  | Show details of a single machine                      |
-| `htb challenges`            | List challenges on HTB                                |
-| `htb challenge <id>`        | Show details of a single challenge                    |
-| `htb profile`               | Show your own HTB profile                             |
+| Command                     | Description                                            |
+| ---------------------------- | -------------------------------------------------------- |
+| `htb login`                  | Save your API token so you don't have to set it again    |
+| `htb logout`                 | Remove the saved API token                                |
+| `htb version`                | Show the CLI version                                      |
+| `htb machines`               | List active machines on HTB                               |
+| `htb machines --retired`     | List retired machines on HTB                              |
+| `htb machine <id_or_name>`   | Show details of a single machine                          |
+| `htb challenges`             | List challenges on HTB                                    |
+| `htb challenge <id>`         | Show details of a single challenge                        |
+| `htb profile`                | Show your own HTB profile                                 |
 
 Listings (`machines`, `challenges`) are paginated 15 results at a time: press `n` for next page, `p` for previous, `q` to quit.
 

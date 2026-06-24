@@ -11,7 +11,7 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from htb_cli.api import HTBAPIError, HTBClient, delete_token, save_token
+from htb_cli.api import CONFIG_FILE, HTBAPIError, HTBClient, delete_token, save_token
 
 app = typer.Typer(help="Unofficial CLI to query the Hack The Box API")
 console = Console()
@@ -92,7 +92,7 @@ def login() -> None:
     """Save your HTB API token so you don't have to set HTB_TOKEN every time."""
     token = typer.prompt("HTB API token", hide_input=True)
     save_token(token)
-    console.print(f"[green]Token saved to {os.path.expanduser('~/.htb-cli/config.json')}[/green]")
+    console.print(f"[green]Token saved to {CONFIG_FILE}[/green]")
 
 
 @app.command()

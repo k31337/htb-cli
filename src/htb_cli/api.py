@@ -40,6 +40,8 @@ def delete_token() -> bool:
 
 
 class HTBClient:
+    MAX_PAGES = 200
+
     def __init__(self, token: str | None = None) -> None:
         self.token = (token or os.environ.get("HTB_TOKEN") or load_token() or "").strip() or None
         if not self.token:
@@ -71,8 +73,6 @@ class HTBClient:
             raise HTBAPIError("Not found. Check the ID or name and try again.")
         response.raise_for_status()
         return response.json()
-
-    MAX_PAGES = 200
 
     def get_all_pages(self, path: str) -> list[dict]:
         items: list[dict] = []
