@@ -142,6 +142,9 @@ class HTBClient:
     def stop_machine(self, machine_id: int) -> dict:
         return self.post("/vm/terminate", json_body={"machine_id": machine_id})
 
+    def reset_machine(self, machine_id: int) -> dict:
+        return self.post("/vm/reset", json_body={"machine_id": machine_id})
+
     def active_machine(self) -> dict | None:
         data = self.get("/machine/active")
         info = data.get("info", data) if isinstance(data, dict) else data

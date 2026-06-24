@@ -225,6 +225,16 @@ def stop(machine_id: int) -> None:
 
 @app.command()
 @handle_api_errors
+def reset(machine_id: int) -> None:
+    """Reset the active machine."""
+    client = HTBClient()
+    result = client.reset_machine(machine_id)
+    message = result.get("message", "Reset requested.")
+    console.print(f"[green]{message}[/green]")
+
+
+@app.command()
+@handle_api_errors
 def submit(
     machine_id: int,
     flag: str,
