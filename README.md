@@ -5,20 +5,32 @@
 ![Status](https://img.shields.io/badge/status-work%20in%20progress-yellow)
 ![Built with Typer](https://img.shields.io/badge/built%20with-Typer-009485?logo=python&logoColor=white)
 
-An unofficial command-line tool to query the [Hack The Box](https://www.hackthebox.com/) API: list machines, check their details, and view your profile, all from the terminal.
+An unofficial command-line tool to query the [Hack The Box](https://www.hackthebox.com/) API: browse machines and challenges, spawn and manage your active box, submit flags, and check your profile, all from the terminal.
 
-Built with [Typer](https://typer.tiangolo.com/) and [Rich](https://rich.readthedocs.io/).
+Built with [Typer](https://typer.tiangolo.com/), [Rich](https://rich.readthedocs.io/) and [httpx](https://www.python-httpx.org/).
 
 > Work in progress, built incrementally — new commands are added over time.
 
 ## Contents
 
+- [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [Troubleshooting](#troubleshooting)
 - [Project structure](#project-structure)
+- [Disclaimer](#disclaimer)
+
+## Features
+
+- Browse active and retired machines, with pagination and colored difficulty
+- View full details of a single machine or challenge
+- Spawn, reset, and stop your active machine
+- Submit user/root flags directly from the terminal
+- Browse challenges by category
+- Check your own HTB profile and stats
+- Raw JSON output (`--json`) on every read command, for scripting
 
 ## Requirements
 
@@ -104,34 +116,51 @@ This only lasts for the current terminal session and takes priority over the sav
 
 ```bash
 htb --help
+htb <command> --help
 ```
 
 ### Commands
 
-| Command                     | Description                                            |
-| ---------------------------- | -------------------------------------------------------- |
-| `htb login`                  | Save your API token so you don't have to set it again    |
-| `htb logout`                 | Remove the saved API token                                |
-| `htb version`                | Show the CLI version                                      |
-| `htb machines`               | List active machines on HTB                               |
-| `htb machines --retired`     | List retired machines on HTB                              |
-| `htb machine <id_or_name>`   | Show details of a single machine                          |
-| `htb challenges`             | List challenges on HTB                                    |
-| `htb challenge <id>`         | Show details of a single challenge                        |
-| `htb profile`                | Show your own HTB profile                                 |
+| Command                              | Description                                          |
+| -------------------------------------- | ------------------------------------------------------ |
+| `htb login`                           | Save your API token so you don't have to set it again |
+| `htb logout`                          | Remove the saved API token                             |
+| `htb version`                         | Show the CLI version                                   |
+| `htb machines [--retired] [--json]`   | List active or retired machines                        |
+| `htb machine <id_or_name> [--json]`   | Show details of a single machine                       |
+| `htb spawn <machine_id>`              | Spawn a machine and wait for its IP                     |
+| `htb stop <machine_id>`               | Stop the active machine                                |
+| `htb reset <machine_id>`              | Reset the active machine                                |
+| `htb submit <machine_id> <flag>`      | Submit a user/root flag                                 |
+| `htb challenges [--json]`             | List challenges                                         |
+| `htb challenge <id> [--json]`         | Show details of a single challenge                      |
+| `htb profile [--json]`                | Show your own HTB profile                               |
 
-Listings (`machines`, `challenges`) are paginated 15 results at a time: press `n` for next page, `p` for previous, `q` to quit.
+Listings (`machines`, `challenges`) are paginated 15 results at a time: press `n` for next page, `p` for previous, `q` to quit. Pass `--json` to any read command to get raw JSON instead, for piping into tools like `jq`.
 
 ### Examples
 
 ```bash
 htb login
+
+# Browse
 htb machines
 htb machines --retired
 htb machine 912
 htb machine Nimbus
 htb challenges
 htb challenge 59
+
+# Play
+htb spawn 912
+htb submit 912 32f7a3b1...
+htb reset 912
+htb stop 912
+
+# Scripting
+htb machines --json | jq '.[0].name'
+
+# Yourself
 htb profile
 ```
 
@@ -140,6 +169,8 @@ htb profile
 - **`'htb' is not recognized as an internal or external command`**: if you installed with pipx, make sure you ran `pipx ensurepath` and reopened your terminal, and that you've run `pipx install -e .` from the repo folder. If you used the venv option, activate it as shown above.
 - **`HTB token not found`**: run `htb login`, or set the `HTB_TOKEN` environment variable in your current terminal session.
 - **`Invalid or expired token`**: generate a new token from Settings > App Tokens, then run `htb login` again (or update `HTB_TOKEN`).
+- **`Not found. Check the ID or name and try again.`**: the ID/name doesn't exist or was mistyped — double check it on the HTB website.
+- **Spawning/resetting fails with a message about VIP**: starting most active machines requires an HTB VIP subscription.
 
 ## Project structure
 
@@ -149,3 +180,7 @@ src/htb_cli/
 ├── api.py   # HTTP client for the HTB API
 └── cli.py   # Typer commands
 ```
+
+## Disclaimer
+
+This is an unofficial, community-built tool and is not affiliated with or endorsed by Hack The Box. Use it only with your own account and API token, and in accordance with [Hack The Box's terms of service](https://www.hackthebox.com/terms-and-conditions).
