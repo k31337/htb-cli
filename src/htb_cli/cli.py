@@ -41,7 +41,7 @@ def _os_text(os_name: str) -> str:
 JSON_OPTION = typer.Option(False, "--json", help="Output raw JSON instead of a formatted table.")
 
 
-def _print_json(value) -> None:
+def _print_json(value: dict | list) -> None:
     console.print_json(data=value)
 
 
@@ -340,21 +340,22 @@ def profile(as_json: bool = JSON_OPTION) -> None:
     table.add_column("Value")
 
     fields = [
-        ("ID", "id"),
-        ("Rank", "rank"),
-        ("Ranking", "ranking"),
-        ("Points", "points"),
-        ("User owns", "user_owns"),
-        ("System owns", "system_owns"),
-        ("User bloods", "user_bloods"),
-        ("System bloods", "system_bloods"),
-        ("Team", "team"),
-        ("Country", "country_name"),
-        ("University", "university_name"),
+        ("ID", "id", None),
+        ("Rank", "rank", None),
+        ("Ranking", "ranking", None),
+        ("Points", "points", None),
+        ("User owns", "user_owns", None),
+        ("System owns", "system_owns", None),
+        ("User bloods", "user_bloods", None),
+        ("System bloods", "system_bloods", None),
+        ("Team", "team", None),
+        ("Country", "country_name", None),
+        ("University", "university_name", None),
     ]
-    for label, key in fields:
+    for label, key, formatter in fields:
         if key in info:
-            table.add_row(label, str(info.get(key, "")))
+            value = info.get(key, "")
+            table.add_row(label, formatter(value) if formatter else str(value))
 
     console.print(table)
 
