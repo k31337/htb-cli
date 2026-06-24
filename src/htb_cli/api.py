@@ -67,6 +67,8 @@ class HTBClient:
         response = httpx.get(url, headers=self._headers(), params=params, timeout=15)
         if response.status_code == 401:
             raise HTBAPIError("Invalid or expired token.")
+        if response.status_code == 404:
+            raise HTBAPIError("Not found. Check the ID or name and try again.")
         response.raise_for_status()
         return response.json()
 
