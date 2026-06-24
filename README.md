@@ -43,7 +43,23 @@ source .venv/Scripts/activate   # Git Bash
 
 ## Configuration
 
-The CLI reads your token from the `HTB_TOKEN` environment variable. Set it in the same terminal session before running any command:
+You have two ways to authenticate:
+
+### Option 1: `htb login` (persists across sessions)
+
+```bash
+htb login
+```
+
+You'll be prompted for your token (input is hidden). It's saved to `~/.htb-cli/config.json` and picked up automatically every time you run the CLI, even after closing the terminal.
+
+To remove it:
+
+```bash
+htb logout
+```
+
+### Option 2: `HTB_TOKEN` environment variable (current session only)
 
 ```bash
 export HTB_TOKEN=your_token_here          # Git Bash
@@ -51,7 +67,7 @@ $env:HTB_TOKEN = "your_token_here"        # PowerShell
 set HTB_TOKEN=your_token_here             # CMD
 ```
 
-This only lasts for the current terminal session. You'll need to set it again if you close the terminal.
+This only lasts for the current terminal session and takes priority over the saved login if both are set.
 
 ## Usage
 
@@ -61,29 +77,36 @@ htb --help
 
 ### Commands
 
-| Command                | Description                              |
-| ----------------------- | ----------------------------------------- |
-| `htb version`           | Show the CLI version                      |
-| `htb machines`          | List active machines on HTB               |
-| `htb machines --retired`| List retired machines on HTB              |
-| `htb machine <id_or_name>` | Show details of a single machine       |
-| `htb profile`           | Show your own HTB profile                 |
+| Command                     | Description                                          |
+| ---------------------------- | ----------------------------------------------------- |
+| `htb login`                 | Save your API token so you don't have to set it again |
+| `htb logout`                | Remove the saved API token                            |
+| `htb version`               | Show the CLI version                                  |
+| `htb machines`              | List active machines on HTB                           |
+| `htb machines --retired`    | List retired machines on HTB                          |
+| `htb machine <id_or_name>`  | Show details of a single machine                      |
+| `htb challenges`            | List challenges on HTB                                |
+| `htb profile`               | Show your own HTB profile                             |
+
+Listings (`machines`, `challenges`) are paginated 15 results at a time: press `n` for next page, `p` for previous, `q` to quit.
 
 ### Examples
 
 ```bash
+htb login
 htb machines
 htb machines --retired
 htb machine 912
 htb machine Nimbus
+htb challenges
 htb profile
 ```
 
 ## Troubleshooting
 
 - **`'htb' is not recognized as an internal or external command`**: your virtual environment isn't active. Activate it as shown above.
-- **`HTB token not found`**: set the `HTB_TOKEN` environment variable in your current terminal session.
-- **`Invalid or expired token`**: generate a new token from Settings > App Tokens and set it again.
+- **`HTB token not found`**: run `htb login`, or set the `HTB_TOKEN` environment variable in your current terminal session.
+- **`Invalid or expired token`**: generate a new token from Settings > App Tokens, then run `htb login` again (or update `HTB_TOKEN`).
 
 ## Project structure
 
