@@ -1,4 +1,5 @@
 import functools
+from importlib.metadata import version as _package_version
 
 import httpx
 import typer
@@ -31,7 +32,7 @@ def handle_api_errors(func):
 @app.command()
 def version() -> None:
     """Show the CLI version."""
-    console.print("htb-cli 0.1.0")
+    console.print(f"htb-cli {_package_version('htb-cli')}")
 
 
 def _print_machines_table(title: str, items: list[dict]) -> None:
