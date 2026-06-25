@@ -1,7 +1,14 @@
 import typer
 
 from htb_cli.api import HTBClient
-from htb_cli.commands._shared import JSON_OPTION, build_detail_panel, console, handle_api_errors, points_text, print_json
+from htb_cli.commands._shared import (
+    JSON_OPTION,
+    build_detail_panel,
+    console,
+    handle_api_errors,
+    points_text,
+    print_json,
+)
 
 app = typer.Typer()
 

@@ -36,7 +36,7 @@ def os_text(os_name: str) -> str:
     return "[cyan]" + str(os_name) + "[/cyan]"
 
 
-def points_text(points) -> str:
+def points_text(points: int | str) -> str:
     return f"[bold cyan]{points}[/bold cyan]"
 
 
