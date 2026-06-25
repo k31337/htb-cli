@@ -3,17 +3,28 @@ from pathlib import Path
 import typer
 
 from htb_cli.api import HTBClient
-from htb_cli.commands._shared import build_detail_panel, build_listing_table, console, handle_api_errors
+from htb_cli.commands._shared import (
+    JSON_OPTION,
+    build_detail_panel,
+    build_listing_table,
+    console,
+    handle_api_errors,
+    print_json,
+)
 
 app = typer.Typer(help="Manage your HTB VPN connection.")
 
 
 @app.command()
 @handle_api_errors
-def status() -> None:
+def status(as_json: bool = JSON_OPTION) -> None:
     """Show the VPN server currently assigned to your account."""
     client = HTBClient()
     server = client.vpn_status()
+
+    if as_json:
+        print_json(server or {})
+        return
 
     if not server:
         console.print("[yellow]No VPN server assigned yet. Run 'htb vpn switch <id>' first.[/yellow]")
@@ -29,10 +40,14 @@ def status() -> None:
 
 @app.command()
 @handle_api_errors
-def servers() -> None:
+def servers(as_json: bool = JSON_OPTION) -> None:
     """List available VPN servers."""
     client = HTBClient()
     items = client.vpn_servers()
+
+    if as_json:
+        print_json(items)
+        return
 
     table = build_listing_table(
         "VPN servers",

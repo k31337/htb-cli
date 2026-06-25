@@ -32,6 +32,7 @@ Built with [Typer](https://typer.tiangolo.com/), [Rich](https://rich.readthedocs
 - Browse challenges by category
 - Check your own HTB profile and stats
 - Manage your VPN connection: check status, list servers, switch, and download `.ovpn` files
+- Browse HTB Seasons: list seasons, see the active season's machines, check your rank and progress
 - Raw JSON output (`--json`) on every read command, for scripting
 
 ## Requirements
@@ -137,10 +138,13 @@ htb <command> --help
 | `htb challenges [--json]`             | List challenges                                         |
 | `htb challenge <id> [--json]`         | Show details of a single challenge                      |
 | `htb profile [--json]`                | Show your own HTB profile                               |
-| `htb vpn status`                      | Show your currently assigned VPN server                 |
-| `htb vpn servers`                     | List available VPN servers                              |
+| `htb vpn status [--json]`             | Show your currently assigned VPN server                 |
+| `htb vpn servers [--json]`            | List available VPN servers                               |
 | `htb vpn switch <server_id>`          | Switch to a different VPN server                         |
 | `htb vpn download <server_id> [--tcp] [-o file]` | Download the `.ovpn` config for a server      |
+| `htb season list [--json]`            | List all HTB Seasons                                      |
+| `htb season machines [--json]`        | List machines in the active season                        |
+| `htb season progress [--json]`        | Show your progress in the active season                   |
 
 Listings (`machines`, `challenges`) are paginated 15 results at a time: press `n` for next page, `p` for previous, `q` to quit. Pass `--json` to any read command to get raw JSON instead, for piping into tools like `jq`.
 
@@ -187,7 +191,8 @@ src/htb_cli/
     ├── machines.py    # machines, machine, spawn, stop, reset, submit
     ├── challenges.py  # challenges, challenge
     ├── profile.py     # profile
-    └── vpn.py         # vpn status, vpn servers, vpn switch, vpn download
+    ├── vpn.py         # vpn status, vpn servers, vpn switch, vpn download
+    └── season.py      # season list, season machines, season progress
 
 tests/
 ├── conftest.py        # Shared fixtures (fake token, isolated config file)
