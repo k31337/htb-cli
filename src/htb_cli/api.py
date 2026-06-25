@@ -7,6 +7,7 @@ from pathlib import Path
 import httpx
 
 BASE_URL = "https://labs.hackthebox.com/api/v4"
+V5_BASE_URL = "https://labs.hackthebox.com/api/v5"
 CONFIG_DIR = Path.home() / ".htb-cli"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
@@ -67,14 +68,22 @@ class HTBClient:
     def get(self, path: str, params: dict | None = None) -> dict:
         url = f"{BASE_URL}{path}"
         response = httpx.get(url, headers=self._headers(), params=params, timeout=15)
-        return self._handle_response(response)
+        self._raise_for_errors(response)
+        return response.json() if response.content else {}
 
     def post(self, path: str, json_body: dict | None = None) -> dict:
         url = f"{BASE_URL}{path}"
         response = httpx.post(url, headers=self._headers(), json=json_body, timeout=15)
-        return self._handle_response(response)
+        self._raise_for_errors(response)
+        return response.json() if response.content else {}
 
-    def _handle_response(self, response: httpx.Response) -> dict:
+    def get_bytes(self, path: str) -> bytes:
+        url = f"{BASE_URL}{path}"
+        response = httpx.get(url, headers=self._headers(), timeout=30)
+        self._raise_for_errors(response)
+        return response.content
+
+    def _raise_for_errors(self, response: httpx.Response) -> None:
         if response.status_code == 401:
             raise HTBAPIError("Invalid or expired token.")
         if response.status_code == 404:
@@ -83,7 +92,6 @@ class HTBClient:
             message = response.json().get("message", "Bad request.") if response.content else "Bad request."
             raise HTBAPIError(message)
         response.raise_for_status()
-        return response.json() if response.content else {}
 
     def get_all_pages(self, path: str) -> list[dict]:
         items: list[dict] = []
@@ -149,6 +157,33 @@ class HTBClient:
         data = self.get("/machine/active")
         info = data.get("info", data) if isinstance(data, dict) else data
         return info or None
+
+    def vpn_status(self) -> dict | None:
+        # /connections was removed from the v4 API; the replacement only exists on v5.
+        response = httpx.get(f"{V5_BASE_URL}/connections", headers=self._headers(), timeout=15)
+        self._raise_for_errors(response)
+        connections = response.json().get("data", [])
+        for connection in connections:
+            if connection.get("type") == "labs":
+                return connection.get("assigned_server")
+        return None
+
+    def vpn_servers(self) -> list[dict]:
+        data = self.get("/connections/servers", params={"product": "labs"})
+        options = data.get("data", {}).get("options", {}) if isinstance(data, dict) else {}
+
+        servers = []
+        for location_roles in options.values():
+            for role in location_roles.values():
+                servers.extend(role.get("servers", {}).values())
+        return servers
+
+    def switch_vpn_server(self, server_id: int) -> dict:
+        return self.post(f"/connections/servers/switch/{server_id}")
+
+    def download_ovpn(self, server_id: int, tcp: bool = False) -> bytes:
+        protocol_suffix = "/1" if tcp else ""
+        return self.get_bytes(f"/access/ovpnfile/{server_id}/0{protocol_suffix}")
 
     def own_profile(self) -> dict:
         user_id = self._own_user_id()
