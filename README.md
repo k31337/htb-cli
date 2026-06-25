@@ -31,6 +31,7 @@ Built with [Typer](https://typer.tiangolo.com/), [Rich](https://rich.readthedocs
 - Submit user/root flags directly from the terminal
 - Browse challenges by category
 - Check your own HTB profile and stats
+- Manage your VPN connection: check status, list servers, switch, and download `.ovpn` files
 - Raw JSON output (`--json`) on every read command, for scripting
 
 ## Requirements
@@ -136,6 +137,10 @@ htb <command> --help
 | `htb challenges [--json]`             | List challenges                                         |
 | `htb challenge <id> [--json]`         | Show details of a single challenge                      |
 | `htb profile [--json]`                | Show your own HTB profile                               |
+| `htb vpn status`                      | Show your currently assigned VPN server                 |
+| `htb vpn servers`                     | List available VPN servers                              |
+| `htb vpn switch <server_id>`          | Switch to a different VPN server                         |
+| `htb vpn download <server_id> [--tcp] [-o file]` | Download the `.ovpn` config for a server      |
 
 Listings (`machines`, `challenges`) are paginated 15 results at a time: press `n` for next page, `p` for previous, `q` to quit. Pass `--json` to any read command to get raw JSON instead, for piping into tools like `jq`.
 
@@ -143,6 +148,9 @@ Listings (`machines`, `challenges`) are paginated 15 results at a time: press `n
 
 ```bash
 htb login
+htb vpn servers
+htb vpn switch 698
+htb vpn download 698 -o lab.ovpn
 htb machines
 htb spawn 912
 htb submit 912 32f7a3b1...
@@ -178,7 +186,8 @@ src/htb_cli/
     ├── auth.py        # version, login, logout
     ├── machines.py    # machines, machine, spawn, stop, reset, submit
     ├── challenges.py  # challenges, challenge
-    └── profile.py     # profile
+    ├── profile.py     # profile
+    └── vpn.py         # vpn status, vpn servers, vpn switch, vpn download
 
 tests/
 ├── conftest.py        # Shared fixtures (fake token, isolated config file)
