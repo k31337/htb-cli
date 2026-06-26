@@ -185,6 +185,23 @@ class HTBClient:
         protocol_suffix = "/1" if tcp else ""
         return self.get_bytes(f"/access/ovpnfile/{server_id}/0{protocol_suffix}")
 
+    def leaderboard_users(self) -> list[dict]:
+        data = self.get("/rankings/users")
+        return data.get("data", data) if isinstance(data, dict) else data
+
+    def leaderboard_teams(self) -> list[dict]:
+        data = self.get("/rankings/teams")
+        return data.get("data", data) if isinstance(data, dict) else data
+
+    def leaderboard_universities(self) -> list[dict]:
+        data = self.get("/rankings/universities")
+        return data.get("data", data) if isinstance(data, dict) else data
+
+    def leaderboard_country(self, country_code: str) -> list[dict]:
+        data = self.get(f"/rankings/country/{country_code}/members")
+        info = data.get("data", data) if isinstance(data, dict) else data
+        return info.get("rankings", []) if isinstance(info, dict) else info
+
     def seasons(self) -> list[dict]:
         data = self.get("/season/list")
         return data.get("data", data) if isinstance(data, dict) else data

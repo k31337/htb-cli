@@ -1,6 +1,7 @@
 import functools
 import math
 import os
+import sys
 from typing import Callable
 
 import click
@@ -12,6 +13,12 @@ from rich.panel import Panel
 from rich.table import Table
 
 from htb_cli.api import HTBAPIError
+
+if sys.platform == "win32":
+    # The legacy Windows console defaults to cp1252, which can't encode names
+    # with emoji or extended Unicode characters (e.g. team/university names).
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 console = Console()
 
