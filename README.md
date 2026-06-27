@@ -6,7 +6,7 @@
 ![Status](https://img.shields.io/badge/status-work%20in%20progress-yellow)
 ![Built with Typer](https://img.shields.io/badge/built%20with-Typer-009485?logo=python&logoColor=white)
 
-An unofficial command-line tool to query the [Hack The Box](https://www.hackthebox.com/) API: browse machines and challenges, spawn and manage your active box, submit flags, and check your profile, all from the terminal.
+An unofficial command-line tool to query the [Hack The Box](https://www.hackthebox.com/) API: browse machines and challenges, spawn and manage your active box, submit flags, manage your VPN, follow Seasons and leaderboards, and check your profile, all from the terminal.
 
 Built with [Typer](https://typer.tiangolo.com/), [Rich](https://rich.readthedocs.io/) and [httpx](https://www.python-httpx.org/).
 
@@ -20,6 +20,7 @@ Built with [Typer](https://typer.tiangolo.com/), [Rich](https://rich.readthedocs
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [Troubleshooting](#troubleshooting)
+- [Running tests](#running-tests)
 - [Project structure](#project-structure)
 - [Disclaimer](#disclaimer)
 
@@ -33,6 +34,7 @@ Built with [Typer](https://typer.tiangolo.com/), [Rich](https://rich.readthedocs
 - Check your own HTB profile and stats
 - Manage your VPN connection: check status, list servers, switch, and download `.ovpn` files
 - Browse HTB Seasons: list seasons, see the active season's machines, check your rank and progress
+- Browse leaderboards: top users, teams, universities, and per-country rankings
 - Raw JSON output (`--json`) on every read command, for scripting
 
 ## Requirements
@@ -145,8 +147,12 @@ htb <command> --help
 | `htb season list [--json]`            | List all HTB Seasons                                      |
 | `htb season machines [--json]`        | List machines in the active season                        |
 | `htb season progress [--json]`        | Show your progress in the active season                   |
+| `htb leaderboard users [--json]`      | Top hackers worldwide                                     |
+| `htb leaderboard teams [--json]`      | Top teams worldwide                                       |
+| `htb leaderboard universities [--json]` | Top universities worldwide                              |
+| `htb leaderboard country <code> [--json]` | Top hackers for a country (e.g. ES, US, DE)          |
 
-Listings (`machines`, `challenges`) are paginated 15 results at a time: press `n` for next page, `p` for previous, `q` to quit. Pass `--json` to any read command to get raw JSON instead, for piping into tools like `jq`.
+Long listings are paginated 15 results at a time: press `n` for next page, `p` for previous, `q` to quit. Pass `--json` to any read command to get raw JSON instead, for piping into tools like `jq`.
 
 ### A typical session
 
@@ -192,12 +198,14 @@ src/htb_cli/
     ├── challenges.py  # challenges, challenge
     ├── profile.py     # profile
     ├── vpn.py         # vpn status, vpn servers, vpn switch, vpn download
-    └── season.py      # season list, season machines, season progress
+    ├── season.py      # season list, season machines, season progress
+    └── leaderboard.py # leaderboard users, teams, universities, country
 
 tests/
 ├── conftest.py        # Shared fixtures (fake token, isolated config file)
 ├── test_token_storage.py
-└── test_api_client.py
+├── test_api_client.py
+└── test_vpn_season_leaderboard.py
 ```
 
 ## Disclaimer
