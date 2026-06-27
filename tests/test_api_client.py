@@ -48,6 +48,17 @@ def test_get_all_pages_collects_every_page(client):
 
 
 @respx.mock
+def test_get_all_pages_handles_null_meta(client):
+    respx.get(f"{BASE_URL}/machine/paginated", params={"page": "1"}).mock(
+        return_value=httpx.Response(200, json={"data": [{"id": 1}], "meta": None})
+    )
+
+    items = client.active_machines()
+
+    assert items == [{"id": 1}]
+
+
+@respx.mock
 def test_machine_profile_unwraps_info(client):
     respx.get(f"{BASE_URL}/machine/profile/912").mock(
         return_value=httpx.Response(200, json={"info": {"id": 912, "name": "Nimbus"}})

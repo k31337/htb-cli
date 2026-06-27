@@ -68,6 +68,15 @@ def test_vpn_servers_flattens_nested_locations(client):
 
 
 @respx.mock
+def test_vpn_servers_handles_null_data(client):
+    respx.get(f"{BASE_URL}/connections/servers", params={"product": "labs"}).mock(
+        return_value=httpx.Response(200, json={"data": None})
+    )
+
+    assert client.vpn_servers() == []
+
+
+@respx.mock
 def test_switch_vpn_server_posts_to_correct_id(client):
     route = respx.post(f"{BASE_URL}/connections/servers/switch/698").mock(
         return_value=httpx.Response(200, json={"message": "VPN Server switched"})

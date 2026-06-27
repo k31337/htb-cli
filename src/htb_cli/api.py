@@ -98,8 +98,8 @@ class HTBClient:
         page = 1
         while page <= self.MAX_PAGES:
             data = self.get(path, params={"page": page})
-            items.extend(data.get("data", []))
-            last_page = data.get("meta", {}).get("last_page", page)
+            items.extend(data.get("data") or [])
+            last_page = (data.get("meta") or {}).get("last_page", page)
             if page >= last_page:
                 break
             page += 1
@@ -170,12 +170,12 @@ class HTBClient:
 
     def vpn_servers(self) -> list[dict]:
         data = self.get("/connections/servers", params={"product": "labs"})
-        options = data.get("data", {}).get("options", {}) if isinstance(data, dict) else {}
+        options = (data.get("data") or {}).get("options", {}) if isinstance(data, dict) else {}
 
         servers = []
         for location_roles in options.values():
             for role in location_roles.values():
-                servers.extend(role.get("servers", {}).values())
+                servers.extend((role.get("servers") or {}).values())
         return servers
 
     def switch_vpn_server(self, server_id: int) -> dict:
@@ -200,7 +200,7 @@ class HTBClient:
     def leaderboard_country(self, country_code: str) -> list[dict]:
         data = self.get(f"/rankings/country/{country_code}/members")
         info = data.get("data", data) if isinstance(data, dict) else data
-        return info.get("rankings", []) if isinstance(info, dict) else info
+        return info.get("rankings", []) if isinstance(info, dict) else []
 
     def seasons(self) -> list[dict]:
         data = self.get("/season/list")
